@@ -3,7 +3,15 @@ import { refreshExperts, createExpert, updateExpert, deleteExpert, refreshVisito
 import '../styles/DashboardPage.css';
 
 const emptyForm = { id: null, firstName: '', lastName: '', department: '' };
-const EXPERT_COLUMNS = ['Full Name', 'Department'];
+const EXPERT_COLUMNS = ['First Name', 'Last Name', 'Department'];
+
+function splitName(fullname) {
+  const parts = String(fullname || '').trim().split(/\s+/);
+  return {
+    firstName: parts[0] || '',
+    lastName: parts.slice(1).join(' '),
+  };
+}
 
 async function downloadWorkbook(rows, filename) {
   const { default: ExcelJS } = await import('exceljs');
@@ -79,11 +87,11 @@ export default function AdminExperts() {
   }
 
   function handleEdit(exp) {
-    const [firstName = '', ...lastNameParts] = String(exp.fullname || '').trim().split(/\s+/);
+    const { firstName, lastName } = splitName(exp.fullname);
     setForm({
       id: exp.id,
       firstName,
-      lastName: lastNameParts.join(' '),
+      lastName,
       department: exp.department || '',
     });
     setError('');
@@ -112,10 +120,14 @@ export default function AdminExperts() {
   }
 
   function exportExperts() {
-    downloadWorkbook(experts.map((expert) => ({
-      'Full Name': expert.fullname,
-      Department: expert.department || '',
-    })), 'employees.xlsx');
+    downloadWorkbook(experts.map((expert) => {
+      const { firstName, lastName } = splitName(expert.fullname);
+      return {
+        'First Name': firstName,
+        'Last Name': lastName,
+        Department: expert.department || '',
+      };
+    }), 'employees.xlsx');
   }
 
   function downloadTemplate() {
@@ -274,31 +286,36 @@ export default function AdminExperts() {
                 <thead>
                   <tr>
                     <th>#</th>
-                    <th>Full Name</th>
+                    <th>First Name</th>
+                    <th>Last Name</th>
                     <th>Department</th>
                     <th>Visitors Seen</th>
                     <th>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {experts.map((exp, i) => (
-                    <tr key={exp.id}>
-                      <td>{i + 1}</td>
-                      <td>{exp.fullname}</td>
-                      <td>{exp.department || '-'}</td>
-                      <td>{visitors.filter((v) => v.expertId === exp.id).length}</td>
-                      <td>
-                        <div style={{ display: 'flex', gap: '0.5rem' }}>
-                          <button className="mini-action-button" onClick={() => handleEdit(exp)}>
-                             Edit
-                          </button>
-                          <button className="mini-action-button danger" onClick={() => handleDelete(exp)}>
-                             Delete
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
+                  {experts.map((exp, i) => {
+                    const { firstName, lastName } = splitName(exp.fullname);
+                    return (
+                      <tr key={exp.id}>
+                        <td>{i + 1}</td>
+                        <td>{firstName}</td>
+                        <td>{lastName}</td>
+                        <td>{exp.department || '-'}</td>
+                        <td>{visitors.filter((v) => v.expertId === exp.id).length}</td>
+                        <td>
+                          <div style={{ display: 'flex', gap: '0.5rem' }}>
+                            <button className="mini-action-button" onClick={() => handleEdit(exp)}>
+                              Edit
+                            </button>
+                            <button className="mini-action-button danger" onClick={() => handleDelete(exp)}>
+                              Delete
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>
