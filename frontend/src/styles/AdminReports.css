@@ -35,6 +35,35 @@
   font-size: 0.9rem;
 }
 
+.report-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.report-pagination button {
+  padding: 0.55rem 0.9rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  background: #fff;
+  color: #1f2a44;
+  cursor: pointer;
+}
+
+.report-pagination button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.report-page-indicator {
+  min-width: 8rem;
+  text-align: center;
+  color: #475569;
+  font-size: 0.9rem;
+}
+
 /* ===================================================
    PRINT RULES
    Only .print-area shows up on paper — everything else

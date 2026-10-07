@@ -29,6 +29,9 @@ export default function AdminReports() {
   const [toDate, setToDate] = useState('');
   const [status, setStatus] = useState('all');
   const [employeeSearch, setEmployeeSearch] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+
+  const PAGE_SIZE = 10;
 
   useEffect(() => {
     refreshVisitors().then(setVisitors);
@@ -62,21 +65,14 @@ export default function AdminReports() {
       .sort((a, b) => parseDateTime(a.checkInDate) - parseDateTime(b.checkInDate));
   }, [visitors, experts, fromDate, toDate, status, employeeSearch]);
 
-  const summary = useMemo(() => {
-    const total = filtered.length;
-    const active = filtered.filter((v) => !v.checkOutDate).length;
-    const checkedOut = total - active;
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [fromDate, toDate, status, employeeSearch]);
 
-    const perExpert = experts
-      .map((exp) => ({
-        name: exp.fullname,
-        count: filtered.filter((v) => v.expertId === exp.id).length,
-      }))
-      .filter((row) => row.count > 0)
-      .sort((a, b) => b.count - a.count);
-
-    return { total, active, checkedOut, perExpert };
-  }, [filtered, experts]);
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const currentPageSafe = Math.min(currentPage, totalPages);
+  const pageStart = (currentPageSafe - 1) * PAGE_SIZE;
+  const pageRecords = filtered.slice(pageStart, pageStart + PAGE_SIZE);
 
   function handlePrint() {
     window.print();
@@ -159,49 +155,6 @@ export default function AdminReports() {
             </p>
           </div>
 
-          <div className="admin-data-grid">
-            <div className="mini-stat-card">
-              <strong>{summary.total}</strong>
-              <span>Total Visitors</span>
-            </div>
-            <div className="mini-stat-card">
-              <strong>{summary.active}</strong>
-              <span>Currently Inside</span>
-            </div>
-            <div className="mini-stat-card">
-              <strong>{summary.checkedOut}</strong>
-              <span>Checked Out</span>
-            </div>
-            <div className="mini-stat-card">
-              <strong>{experts.length}</strong>
-              <span>Total Employees</span>
-            </div>
-          </div>
-
-          {summary.perExpert.length > 0 && (
-            <div className="admin-inline-section">
-              <h3>Visitors per Employee</h3>
-              <div className="admin-section-table-wrap">
-                <table className="admin-section-table">
-                  <thead>
-                    <tr>
-                      <th>Employee</th>
-                      <th>Visitors</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {summary.perExpert.map((row) => (
-                      <tr key={row.name}>
-                        <td>{row.name}</td>
-                        <td>{row.count}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          )}
-
           <div className="admin-inline-section">
             <h3>Visitor Records ({filtered.length})</h3>
             {filtered.length === 0 ? (
@@ -223,9 +176,9 @@ export default function AdminReports() {
                     </tr>
                   </thead>
                   <tbody>
-                    {filtered.map((v, i) => (
+                    {pageRecords.map((v, i) => (
                       <tr key={v.id}>
-                        <td>{i + 1}</td>
+                        <td>{pageStart + i + 1}</td>
                         <td>{v.fullName}</td>
                         <td>{v.phone}</td>
                         <td>{v.idNumber || '-'}</td>
@@ -242,6 +195,28 @@ export default function AdminReports() {
                     ))}
                   </tbody>
                 </table>
+              </div>
+            )}
+
+            {filtered.length > PAGE_SIZE && (
+              <div className="report-pagination no-print">
+                <button
+                  type="button"
+                  onClick={() => setCurrentPage((page) => Math.max(1, page - 1))}
+                  disabled={currentPageSafe === 1}
+                >
+                  Previous Page
+                </button>
+                <span className="report-page-indicator">
+                  Page {currentPageSafe} of {totalPages}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setCurrentPage((page) => Math.min(totalPages, page + 1))}
+                  disabled={currentPageSafe === totalPages}
+                >
+                  Next Page
+                </button>
               </div>
             )}
           </div>
