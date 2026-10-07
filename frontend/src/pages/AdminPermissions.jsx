@@ -8,11 +8,8 @@ const PERMISSION_GROUPS = [
     items: [
       ['users.create', 'Create / add users'],
       ['users.edit', 'Edit user details'],
-      ['users.deactivate', 'Deactivate / suspend users'],
       ['users.delete', 'Delete / remove users'],
-      ['users.reset_password', 'Reset password / activation link'],
       ['users.bulk_import', 'Bulk user import'],
-      ['users.sso_mapping', 'SSO mapping'],
     ],
   },
   {
@@ -20,13 +17,12 @@ const PERMISSION_GROUPS = [
     items: [
       ['roles.create_custom', 'Create custom roles'],
       ['roles.edit_permissions', 'Edit role permissions'],
-      ['roles.clone', 'Duplicate / clone roles'],
       ['roles.delete_custom', 'Delete custom roles'],
       ['roles.assign_multiple', 'Assign multiple roles'],
     ],
   },
   {
-    title: 'Visitors and reports',
+    title: 'Visitors management',
     items: [
       ['visitors.view', 'View visitors'],
       ['visitors.register', 'Register visitors'],
