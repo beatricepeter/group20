@@ -642,26 +642,219 @@
   font-size: 1rem;
 }
 
+.permission-filters {
+  display: grid;
+  grid-template-columns: minmax(260px, 1fr) minmax(180px, 0.5fr);
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.permission-search,
+.permission-filter {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  color: #374151;
+  font-weight: 600;
+}
+
+.permission-search input,
+.permission-filter select {
+  min-width: 0;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  padding: 0.75rem 0.85rem;
+  color: #111827;
+  background: #ffffff;
+  font: inherit;
+}
+
 .permission-account-list {
   display: grid;
   gap: 0.75rem;
 }
 
-.permission-account {
-  border: 1px solid #d1d5db;
-  border-radius: 6px;
-  overflow: hidden;
+.permission-drawer-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  justify-content: flex-end;
+  background: rgba(15, 23, 42, 0.45);
 }
 
-.permission-account summary {
+.permission-drawer {
+  width: min(430px, 100%);
+  height: 100%;
+  overflow-y: auto;
+  background: #ffffff;
+  box-shadow: -8px 0 24px rgba(15, 23, 42, 0.18);
+  animation: permission-drawer-in 0.2s ease-out;
+}
+
+@keyframes permission-drawer-in {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+}
+
+.permission-drawer-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.5rem;
+  border-bottom: 1px solid #e5e7eb;
+  background: #f8fafc;
+}
+
+.permission-drawer-label {
+  color: #2563eb;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.permission-drawer-header h2 {
+  margin: 0.35rem 0 0;
+  color: #111827;
+  font-size: 1.35rem;
+}
+
+.permission-drawer-close {
+  border: 0;
+  border-radius: 50%;
+  background: #e5e7eb;
+  color: #111827;
+  cursor: pointer;
+  font-size: 1.5rem;
+  line-height: 1;
+  width: 2.25rem;
+  height: 2.25rem;
+}
+
+.permission-drawer-content {
+  padding: 1.5rem;
+}
+
+.permission-drawer-fields {
+  display: grid;
+  gap: 0.9rem;
+  margin-top: 1.25rem;
+}
+
+.permission-drawer-fields label {
+  display: grid;
+  gap: 0.4rem;
+  color: #374151;
+  font-weight: 600;
+}
+
+.permission-drawer-fields input {
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  padding: 0.75rem 0.85rem;
+  background: #ffffff;
+  color: #111827;
+  font: inherit;
+  font-weight: 400;
+}
+
+.permission-drawer-fields input:focus {
+  border-color: #2563eb;
+  outline: 2px solid rgba(37, 99, 235, 0.15);
+  outline-offset: 1px;
+}
+
+.permission-drawer-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.85rem 0;
+  border-bottom: 1px solid #f0f2f5;
+}
+
+.permission-drawer-row span {
+  color: #6b7280;
+}
+
+.permission-drawer-row strong {
+  color: #111827;
+  text-align: right;
+}
+
+.permission-drawer-permissions h3 {
+  margin: 1.25rem 0 0.75rem;
+}
+
+.permission-drawer-permissions ul {
+  display: grid;
+  gap: 0.5rem;
+  margin: 0;
+  padding-left: 1.25rem;
+}
+
+.permission-drawer-permissions li {
+  color: #374151;
+}
+
+.permission-drawer-permissions p {
+  color: #6b7280;
+}
+
+.permission-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.8rem;
+  margin-top: 1.25rem;
+}
+
+.permission-pagination button {
+  border: 1px solid #2563eb;
+  border-radius: 6px;
+  background: #ffffff;
+  color: #2563eb;
+  cursor: pointer;
+  padding: 0.6rem 1rem;
+  font: inherit;
+  font-weight: 600;
+}
+
+.permission-pagination button:disabled {
+  border-color: #9ca3af;
+  color: #6b7280;
+  cursor: not-allowed;
+}
+
+.permission-page-indicator {
+  color: #374151;
+  font-weight: 600;
+}
+
+.permission-account {
   display: grid;
   grid-template-columns: minmax(140px, 1fr) minmax(100px, 0.6fr) minmax(140px, 1fr);
   gap: 1rem;
   align-items: center;
+  width: 100%;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
   padding: 0.9rem 1rem;
   background: #f8fafc;
+  color: #111827;
   cursor: pointer;
+  font: inherit;
   font-weight: 600;
+  text-align: left;
+}
+
+.permission-account:hover {
+  border-color: #93c5fd;
+  background: #f1f7ff;
 }
 
 .permission-account-content {
@@ -683,6 +876,7 @@
   align-items: center;
   gap: 0.55rem;
   color: #374151;
+  cursor: pointer;
 }
 
 .permission-account-fields label {
@@ -722,6 +916,10 @@
   margin: 0;
   accent-color: #2563eb;
   flex: 0 0 auto;
+}
+
+.permission-group label:hover {
+  color: #1d4ed8;
 }
 
 @media (max-width: 768px) {
@@ -770,6 +968,10 @@
   .panel-header-row {
     flex-direction: column;
     align-items: flex-start;
+  }
+
+  .permission-filters {
+    grid-template-columns: 1fr;
   }
 
   .permission-account summary {
