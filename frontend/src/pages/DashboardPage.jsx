@@ -17,8 +17,11 @@ export default function DashboardPage({ role }) {
 
   const currentRole = role || user?.role || 'admin';
   const panelTitle = currentRole === 'admin' ? 'Admin Panel' : 'Reception Desk';
-  const canViewVisitors = user?.role === 'admin' || user?.permissions?.includes('visitors.view');
-  const canRegisterVisitors = user?.role === 'admin' || user?.permissions?.includes('visitors.register');
+  const hasPermission = (permission) => (
+    user?.role === 'admin' || user?.permissions?.includes(permission) || (permission === 'visitors.delete' && Boolean(user?.canDeleteVisitors))
+  );
+  const canViewVisitors = hasPermission('visitors.view');
+  const canRegisterVisitors = hasPermission('visitors.register');
 
   const parseDateTime = (value) => {
     const text = String(value || '');

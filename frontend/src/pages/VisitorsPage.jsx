@@ -8,9 +8,12 @@ import '../styles/VisitorsPage.css';
 export default function VisitorsPage() {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const canRegisterVisitors = user?.role === 'admin' || user?.permissions?.includes('visitors.register');
-  const canDeleteVisitors = user?.role === 'admin' || user?.canDeleteVisitors;
-  const canViewVisitorDetails = user?.role === 'admin';
+  const hasPermission = (permission) => (
+    user?.role === 'admin' || user?.permissions?.includes(permission) || (permission === 'visitors.delete' && Boolean(user?.canDeleteVisitors))
+  );
+  const canRegisterVisitors = hasPermission('visitors.register');
+  const canDeleteVisitors = hasPermission('visitors.delete');
+  const canViewVisitorDetails = user?.role === 'admin' || hasPermission('visitors.view');
   const [visitors, setVisitors] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');

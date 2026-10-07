@@ -4,29 +4,12 @@ import '../styles/DashboardPage.css';
 
 const PERMISSION_GROUPS = [
   {
-    title: 'User management',
-    items: [
-      ['users.create', 'Create / add users'],
-      ['users.edit', 'Edit user details'],
-      ['users.delete', 'Delete / remove users'],
-      ['users.bulk_import', 'Bulk user import'],
-    ],
-  },
-  {
-    title: 'Role management',
-    items: [
-      ['roles.create_custom', 'Create custom roles'],
-      ['roles.edit_permissions', 'Edit role permissions'],
-      ['roles.delete_custom', 'Delete custom roles'],
-      ['roles.assign_multiple', 'Assign multiple roles'],
-    ],
-  },
-  {
     title: 'Visitors management',
     items: [
       ['visitors.view', 'View visitors'],
       ['visitors.register', 'Register visitors'],
       ['visitors.delete', 'Delete visitor records'],
+      ['visitors.create_appointment', 'Create visitor appointments'],
     ],
   },
 ];

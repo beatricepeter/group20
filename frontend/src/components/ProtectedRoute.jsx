@@ -16,14 +16,23 @@ export default function ProtectedRoute({ children, allowedRoles, requiredPermiss
     return <Navigate to={user.role === 'admin' ? '/admin-dashboard' : '/dashboard'} replace />;
   }
 
-  if (requiredPermission && user.role !== 'admin'
-      && !user.permissions?.includes(requiredPermission)) {
-    const fallbackPath = user.permissions?.includes('visitors.view')
-      ? '/visitors'
-      : user.permissions?.includes('visitors.register')
-        ? '/register'
-        : '/';
-    return <Navigate to={fallbackPath} replace />;
+  const requiredPermissions = Array.isArray(requiredPermission)
+    ? requiredPermission
+    : requiredPermission ? [requiredPermission] : [];
+
+  if (requiredPermissions.length > 0 && user.role !== 'admin') {
+    const hasRequiredPermission = requiredPermissions.some((permission) =>
+      user.permissions?.includes(permission)
+    );
+
+    if (!hasRequiredPermission) {
+      const fallbackPath = user.permissions?.includes('visitors.view')
+        ? '/visitors'
+        : user.permissions?.includes('visitors.register')
+          ? '/register'
+          : '/';
+      return <Navigate to={fallbackPath} replace />;
+    }
   }
 
   return children;

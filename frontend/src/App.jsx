@@ -118,7 +118,7 @@ function AppContent() {
             element={
               <ProtectedRoute
                 allowedRoles={['admin', 'receptionist', 'expert']}
-                requiredPermission="visitors.view"
+                requiredPermission="visitors.create_appointment"
               >
                 <AppointmentsPage />
               </ProtectedRoute>

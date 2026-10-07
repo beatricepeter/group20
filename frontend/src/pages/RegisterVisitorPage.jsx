@@ -9,7 +9,10 @@ const DEFAULT_COMPANY = 'E-Government of Zanzibar';
 export default function RegisterVisitorPage() {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const canViewVisitors = user?.role === 'admin' || user?.permissions?.includes('visitors.view');
+  const hasPermission = (permission) => (
+    user?.role === 'admin' || user?.permissions?.includes(permission) || (permission === 'visitors.delete' && Boolean(user?.canDeleteVisitors))
+  );
+  const canViewVisitors = hasPermission('visitors.view');
   const [experts, setExperts] = useState([]);
   const [formData, setFormData] = useState({
     firstName: '',

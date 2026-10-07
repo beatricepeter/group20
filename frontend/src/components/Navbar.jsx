@@ -10,8 +10,12 @@ export default function Navbar() {
   if (!user) return null;
 
   const isAdmin = user.role === 'admin';
-  const canViewVisitors = isAdmin || user.permissions?.includes('visitors.view');
-  const canRegisterVisitors = isAdmin || user.permissions?.includes('visitors.register');
+  const hasPermission = (permission) => (
+    isAdmin || user.permissions?.includes(permission) || (permission === 'visitors.delete' && Boolean(user.canDeleteVisitors))
+  );
+  const canViewVisitors = hasPermission('visitors.view');
+  const canRegisterVisitors = hasPermission('visitors.register');
+  const canAccessAppointments = hasPermission('visitors.create_appointment');
   const homePath = isAdmin ? '/admin-dashboard' : '/dashboard';
 
   const handleLogout = () => {
@@ -54,7 +58,7 @@ export default function Navbar() {
                  Register
               </button>
             )}
-            {canViewVisitors && (
+            {canAccessAppointments && (
               <button
                 className={`nav-link ${isActive('/appointments')}`}
                 onClick={() => navigate('/appointments')}

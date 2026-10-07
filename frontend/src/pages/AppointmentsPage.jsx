@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/useAuth';
 import { createAppointment, refreshAppointments } from '../lib/db';
 import '../styles/AppointmentsPage.css';
 
@@ -16,6 +17,9 @@ const defaultDateTime = () => {
 
 export default function AppointmentsPage() {
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const canCreateAppointments = user?.role === 'admin' || user?.permissions?.includes('visitors.create_appointment');
+  const canViewAppointments = user?.role === 'admin' || user?.permissions?.includes('visitors.view');
   const [appointments, setAppointments] = useState([]);
   const [formData, setFormData] = useState({
     visitorName: '',
@@ -29,8 +33,13 @@ export default function AppointmentsPage() {
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
+    if (!canViewAppointments) {
+      setAppointments([]);
+      return;
+    }
+
     refreshAppointments().then(setAppointments).catch((err) => setError(err.message));
-  }, []);
+  }, [canViewAppointments]);
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -41,6 +50,11 @@ export default function AppointmentsPage() {
     event.preventDefault();
     setError('');
     setSuccess('');
+
+    if (!canCreateAppointments) {
+      setError('You do not have permission to create visitor appointments.');
+      return;
+    }
 
     if (!formData.visitorName.trim() || !formData.phone.trim() || !formData.appointmentDate || !formData.purpose.trim()) {
       setError('Please fill in the visitor name, phone number, appointment date, and purpose.');
@@ -87,47 +101,53 @@ export default function AppointmentsPage() {
           <h1>Appointments</h1>
           <p>Create and review appointments for visitors.</p>
         </div>
-        <button className="btn-secondary" type="button" onClick={() => navigate('/visitors')}>
-          Back to visitors
-        </button>
       </div>
 
       <div className="appointments-layout">
-        <section className="appointments-card appointments-form-card">
-          <h2>Create Appointment</h2>
-          <form className="appointments-form" onSubmit={handleSubmit}>
-            <label>
-              Visitor name
-              <input name="visitorName" value={formData.visitorName} onChange={handleChange} placeholder="Visitor name" required />
-            </label>
-            <label>
-              Phone number
-              <input name="phone" type="tel" value={formData.phone} onChange={handleChange} placeholder="Phone number" required />
-            </label>
-            <label>
-              Appointment date and time
-              <input name="appointmentDate" type="datetime-local" value={formData.appointmentDate} onChange={handleChange} required />
-            </label>
-            <label>
-              Purpose
-              <textarea name="purpose" value={formData.purpose} onChange={handleChange} placeholder="Describe the appointment" rows="4" required />
-            </label>
-            <label>
-              Status
-              <select name="status" value={formData.status} onChange={handleChange}>
-                <option value="pending">Pending</option>
-                <option value="confirmed">Confirmed</option>
-                <option value="completed">Completed</option>
-                <option value="cancelled">Cancelled</option>
-              </select>
-            </label>
-            {error && <p className="appointments-error">{error}</p>}
-            {success && <p className="appointments-success">{success}</p>}
-            <button className="btn-primary" type="submit" disabled={saving}>
-              {saving ? 'Creating...' : 'Create Appointment'}
-            </button>
-          </form>
-        </section>
+        {canCreateAppointments ? (
+          <section className="appointments-card appointments-form-card">
+            <h2>Create Appointment</h2>
+            <form className="appointments-form" onSubmit={handleSubmit}>
+              <label>
+                Visitor name
+                <input name="visitorName" value={formData.visitorName} onChange={handleChange} placeholder="Visitor name" required />
+              </label>
+              <label>
+                Phone number
+                <input name="phone" type="tel" value={formData.phone} onChange={handleChange} placeholder="Phone number" required />
+              </label>
+              <label>
+                Appointment date and time
+                <input name="appointmentDate" type="datetime-local" value={formData.appointmentDate} onChange={handleChange} required />
+              </label>
+              <label>
+                Purpose
+                <textarea name="purpose" value={formData.purpose} onChange={handleChange} placeholder="Describe the appointment" rows="4" required />
+              </label>
+              <label>
+                Status
+                <select name="status" value={formData.status} onChange={handleChange}>
+                  <option value="pending">Pending</option>
+                  <option value="confirmed">Confirmed</option>
+                  <option value="completed">Completed</option>
+                  <option value="cancelled">Cancelled</option>
+                </select>
+              </label>
+              {error && <p className="appointments-error">{error}</p>}
+              {success && <p className="appointments-success">{success}</p>}
+              <button className="btn-primary" type="submit" disabled={saving}>
+                {saving ? 'Creating...' : 'Create Appointment'}
+              </button>
+            </form>
+          </section>
+        ) : (
+          <section className="appointments-card appointments-form-card">
+            <h2>Create Appointment</h2>
+            <p className="appointments-error">
+              You do not have permission to create visitor appointments.
+            </p>
+          </section>
+        )}
 
         <section className="appointments-card">
           <div className="appointments-section-heading">

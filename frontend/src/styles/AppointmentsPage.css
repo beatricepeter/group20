@@ -1,7 +1,11 @@
 .appointments-page {
   min-height: calc(100vh - 80px);
   padding: 2rem;
-  background: #f3f6fb;
+  background-image: linear-gradient(rgba(15, 23, 42, 0.38), rgba(15, 23, 42, 0.42)),
+    url('../assets/wallpaper.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
   color: #172033;
 }
 
@@ -24,9 +28,14 @@
   margin: 0;
 }
 
+.appointments-header h1 {
+  color: #f8fafc;
+  font-size: 2rem;
+}
+
 .appointments-eyebrow {
   margin: 0 0 0.25rem;
-  color: #2563eb;
+  color: #bfdbfe;
   font-size: 0.8rem;
   font-weight: 700;
   letter-spacing: 0.08em;
@@ -35,7 +44,7 @@
 
 .appointments-header p:last-child {
   margin: 0.4rem 0 0;
-  color: #64748b;
+  color: #e2e8f0;
 }
 
 .appointments-layout {
