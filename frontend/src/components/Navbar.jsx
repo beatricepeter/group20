@@ -54,6 +54,14 @@ export default function Navbar() {
                  Register
               </button>
             )}
+            {canViewVisitors && (
+              <button
+                className={`nav-link ${isActive('/appointments')}`}
+                onClick={() => navigate('/appointments')}
+              >
+                 Appointments
+              </button>
+            )}
           </>
         )}
 

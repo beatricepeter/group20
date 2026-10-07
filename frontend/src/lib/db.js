@@ -173,6 +173,20 @@ export async function deleteVisitor(id) {
   await apiRequest(`/visitors/${id}`, { method: 'DELETE' });
 }
 
+// ---- APPOINTMENTS ----
+
+export async function refreshAppointments() {
+  const appointments = await apiRequest('/appointments');
+  return Array.isArray(appointments) ? appointments : [];
+}
+
+export async function createAppointment(payload) {
+  return apiRequest('/appointments', {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  });
+}
+
 // ---- SESSION (who is currently logged in — persists across refresh) ----
 export function getSession() {
   try {

@@ -11,6 +11,7 @@ import AdminPermissions from './pages/AdminPermissions'
 import AdminReports from './pages/AdminReports'
 import VisitorsPage from './pages/VisitorsPage'
 import RegisterVisitorPage from './pages/RegisterVisitorPage'
+import AppointmentsPage from './pages/AppointmentsPage'
 import VisitorInsightsPage from './pages/VisitorInsightsPage'
 import Home from './pages/Home'
 import './App.css'
@@ -108,6 +109,18 @@ function AppContent() {
                 requiredPermission="visitors.register"
               >
                 <RegisterVisitorPage />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/appointments"
+            element={
+              <ProtectedRoute
+                allowedRoles={['admin', 'receptionist', 'expert']}
+                requiredPermission="visitors.view"
+              >
+                <AppointmentsPage />
               </ProtectedRoute>
             }
           />
