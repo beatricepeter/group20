@@ -3,7 +3,7 @@ import { useAuth } from '../context/useAuth';
 import { refreshUsers, createUser, updateUser, deleteUser } from '../lib/db';
 import '../styles/DashboardPage.css';
 
-const emptyForm = { id: null, fullname: '', username: '', password: '', role: 'receptionist' };
+const emptyForm = { id: null, firstName: '', lastName: '', username: '', password: '', role: 'receptionist' };
 
 export default function AdminUsers() {
   const { user: session } = useAuth();
@@ -26,8 +26,9 @@ export default function AdminUsers() {
     setError('');
     setSuccess('');
 
-    if (!form.fullname.trim() || !form.username.trim()) {
-      setError('Full name and username are required.');
+    const fullname = `${form.firstName.trim()} ${form.lastName.trim()}`.trim();
+    if (!fullname || !form.username.trim()) {
+      setError('First name, last name, and username are required.');
       return;
     }
     if (!editing && !form.password) {
@@ -47,7 +48,7 @@ export default function AdminUsers() {
       if (editing) {
         const target = users.find((u) => u.id === form.id);
         const payload = {
-          fullname: form.fullname.trim(),
+          fullname,
           username: form.username.trim(),
           password: form.password ? form.password : '',
           role: form.id === session.id ? target.role : form.role, // can't self-promote/demote here
@@ -57,7 +58,7 @@ export default function AdminUsers() {
         setSuccess('User information updated successfully.');
       } else {
         const payload = {
-          fullname: form.fullname.trim(),
+          fullname,
           username: form.username.trim(),
           password: form.password,
           role: form.role,
@@ -73,7 +74,15 @@ export default function AdminUsers() {
   }
 
   function handleEdit(u) {
-    setForm({ id: u.id, fullname: u.fullname, username: u.username, password: '', role: u.role });
+    const [firstName = '', ...lastNameParts] = String(u.fullname || '').trim().split(/\s+/);
+    setForm({
+      id: u.id,
+      firstName,
+      lastName: lastNameParts.join(' '),
+      username: u.username,
+      password: '',
+      role: u.role,
+    });
     setError('');
     setSuccess('');
   }
@@ -151,12 +160,21 @@ export default function AdminUsers() {
 
           <form onSubmit={handleSubmit} className="receptionist-form">
             <div className="form-group">
-              <label>Full Name </label>
+              <label>First Name</label>
               <input
                 type="text"
-                value={form.fullname}
-                onChange={(e) => setForm((f) => ({ ...f, fullname: e.target.value }))}
-                placeholder=" Enter full name of the user"
+                value={form.firstName}
+                onChange={(e) => setForm((f) => ({ ...f, firstName: e.target.value }))}
+                placeholder="Enter first name"
+              />
+            </div>
+            <div className="form-group">
+              <label>Last Name</label>
+              <input
+                type="text"
+                value={form.lastName}
+                onChange={(e) => setForm((f) => ({ ...f, lastName: e.target.value }))}
+                placeholder="Enter last name"
               />
             </div>
             <div className="form-group">
