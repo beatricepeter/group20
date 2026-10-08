@@ -5,7 +5,7 @@ import '../styles/DashboardPage.css';
 
 const emptyForm = { id: null, firstName: '', lastName: '', username: '', password: '', role: 'receptionist' };
 
-export default function AdminUsers() {
+export default function AdminUsers({ roleAssignmentOnly = false }) {
   const { user: session } = useAuth();
   const [users, setUsers] = useState([]);
   const [form, setForm] = useState(emptyForm);
@@ -96,9 +96,9 @@ export default function AdminUsers() {
       return;
     }
 
-    const admins = users.filter((x) => x.role === 'admin');
-    if (target.role === 'admin' && newRole !== 'admin' && admins.length <= 1) {
-      setError('Unable to delete the last admin.');
+    const activeAdmins = users.filter((account) => account.role === 'admin' && account.enabled !== false);
+    if (target.role === 'admin' && newRole !== 'admin' && activeAdmins.length <= 1) {
+      setError('Unable to change the role of the last active admin.');
       return;
     }
 
@@ -190,11 +190,11 @@ export default function AdminUsers() {
     <div className="dashboard-container">
       <div className="dashboard-content">
         <div className="welcome-section">
-          <h1> Manage Users</h1>
-          <p>Add receptionists, promote admins, or remove accounts</p>
+          <h1>{roleAssignmentOnly ? 'Assign User Roles' : 'Manage Users'}</h1>
+          <p>{roleAssignmentOnly ? 'Change roles for user accounts.' : 'Add receptionists, promote admins, or remove accounts'}</p>
         </div>
 
-        <div className="admin-section-panel">
+        {!roleAssignmentOnly && <div className="admin-section-panel">
           <div className="panel-header-row">
             <h2>{editing ? 'Edit User' : 'Add New User'}</h2>
           </div>
@@ -261,11 +261,11 @@ export default function AdminUsers() {
               )}
             </div>
           </form>
-        </div>
+        </div>}
 
         <div className="admin-section-panel admin-inline-section">
           <div className="panel-header-row">
-            <h2>All Users</h2>
+            <h2>{roleAssignmentOnly ? 'User Roles' : 'All Users'}</h2>
             <span>{users.length} Total</span>
           </div>
 
@@ -277,9 +277,9 @@ export default function AdminUsers() {
                   <th>Full Name</th>
                   <th>Username</th>
                   <th>Role</th>
-                  <th>Access</th>
-                  <th>Joined</th>
-                  <th>Actions</th>
+                  {!roleAssignmentOnly && <th>Access</th>}
+                  {!roleAssignmentOnly && <th>Joined</th>}
+                  {!roleAssignmentOnly && <th>Actions</th>}
                 </tr>
               </thead>
               <tbody>
@@ -301,34 +301,38 @@ export default function AdminUsers() {
                           <option value="admin">Admin</option>
                         </select>
                       </td>
-                      <td>
-                        <span className={`status-pill ${u.enabled === false ? 'checked-out' : 'active'}`}>
-                          {u.enabled === false ? 'Revoked' : 'Active'}
-                        </span>
-                      </td>
-                      <td>{u.created_at || u.createdAt ? new Date(u.created_at || u.createdAt).toLocaleDateString() : '-'}</td>
-                      <td>
-                        <div style={{ display: 'flex', gap: '0.5rem' }}>
-                          <button className="mini-action-button" onClick={() => handleEdit(u)}>
-                             Edit
-                          </button>
-                          <button
-                            className={`mini-action-button${u.enabled === false ? '' : ' danger'}`}
-                            disabled={isSelf || (isDefaultAdmin && u.enabled !== false)}
-                            onClick={() => handleAccessChange(u)}
-                            title={isDefaultAdmin ? 'The default admin account must remain active' : undefined}
-                          >
-                            {u.enabled === false ? 'Restore' : 'Revoke'}
-                          </button>
-                          <button
-                            className="mini-action-button danger"
-                            disabled={isSelf}
-                            onClick={() => handleDelete(u)}
-                          >
-                             Delete
-                          </button>
-                        </div>
-                      </td>
+                      {!roleAssignmentOnly && (
+                        <>
+                          <td>
+                            <span className={`status-pill ${u.enabled === false ? 'checked-out' : 'active'}`}>
+                              {u.enabled === false ? 'Revoked' : 'Active'}
+                            </span>
+                          </td>
+                          <td>{u.created_at || u.createdAt ? new Date(u.created_at || u.createdAt).toLocaleDateString() : '-'}</td>
+                          <td>
+                            <div style={{ display: 'flex', gap: '0.5rem' }}>
+                              <button className="mini-action-button" onClick={() => handleEdit(u)}>
+                                 Edit
+                              </button>
+                              <button
+                                className={`mini-action-button${u.enabled === false ? '' : ' danger'}`}
+                                disabled={isSelf || (isDefaultAdmin && u.enabled !== false)}
+                                onClick={() => handleAccessChange(u)}
+                                title={isDefaultAdmin ? 'The default admin account must remain active' : undefined}
+                              >
+                                {u.enabled === false ? 'Restore' : 'Revoke'}
+                              </button>
+                              <button
+                                className="mini-action-button danger"
+                                disabled={isSelf}
+                                onClick={() => handleDelete(u)}
+                              >
+                                 Delete
+                              </button>
+                            </div>
+                          </td>
+                        </>
+                      )}
                     </tr>
                   );
                 })}

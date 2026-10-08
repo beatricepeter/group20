@@ -69,6 +69,18 @@ function AppRoutes() {
           />
 
           <Route
+            path="/assign-roles"
+            element={
+              <ProtectedRoute
+                allowedRoles={['receptionist', 'expert']}
+                requiredPermission="users.assign_roles"
+              >
+                <AdminUsers roleAssignmentOnly />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
             path="/admin/permissions"
             element={
               <ProtectedRoute allowedRoles={['admin']}>

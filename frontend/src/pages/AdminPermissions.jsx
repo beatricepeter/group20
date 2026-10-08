@@ -13,6 +13,12 @@ const PERMISSION_GROUPS = [
       ['visitors.create_appointment', 'Create visitor appointments'],
     ],
   },
+  {
+    title: 'Account management',
+    items: [
+      ['users.assign_roles', 'Assign user roles'],
+    ],
+  },
 ];
 
 export default function AdminPermissions() {

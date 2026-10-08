@@ -18,6 +18,7 @@ export default function Navbar() {
   const canViewVisitors = hasPermission('visitors.view');
   const canRegisterVisitors = hasPermission('visitors.register');
   const canAccessAppointments = hasPermission('visitors.create_appointment');
+  const canAssignUserRoles = user.permissions?.includes('users.assign_roles');
   const homePath = isAdmin ? '/admin-dashboard' : '/dashboard';
 
   const handleLogout = () => {
@@ -89,6 +90,14 @@ export default function Navbar() {
                   onClick={() => goTo('/appointments')}
                 >
                   <span aria-hidden="true">▣</span> Appointments
+                </button>
+              )}
+              {canAssignUserRoles && (
+                <button
+                  className={`nav-link ${isActive('/assign-roles')}`}
+                  onClick={() => goTo('/assign-roles')}
+                >
+                  <span aria-hidden="true">⚿</span> Assign Roles
                 </button>
               )}
             </>
