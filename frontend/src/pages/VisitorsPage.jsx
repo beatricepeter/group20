@@ -112,6 +112,16 @@ export default function VisitorsPage({ adminDetailsPage = false }) {
     loadVisitors();
   }, []);
 
+  useEffect(() => {
+    if (!adminDetailsPage || !selectedVisitor) return undefined;
+
+    const closeOnEscape = (event) => {
+      if (event.key === 'Escape') setSelectedVisitor(null);
+    };
+    window.addEventListener('keydown', closeOnEscape);
+    return () => window.removeEventListener('keydown', closeOnEscape);
+  }, [adminDetailsPage, selectedVisitor]);
+
   useIdleRefresh(loadVisitors);
 
   const handleCheckOut = async (id) => {
@@ -266,68 +276,6 @@ export default function VisitorsPage({ adminDetailsPage = false }) {
                 </span>
               </div>
 
-              {canViewVisitorDetails && selectedVisitor?.id === visitor.id && (
-                <div className="visitor-details">
-                  <div className="detail-row">
-                    <span className="label">Phone:</span>
-                    <span className="value">{visitor.phone}</span>
-                  </div>
-                  {visitor.email && (
-                    <div className="detail-row">
-                      <span className="label">Email:</span>
-                      <span className="value">{visitor.email}</span>
-                    </div>
-                  )}
-                  {visitor.company && (
-                    <div className="detail-row">
-                      <span className="label">Company:</span>
-                      <span className="value">{visitor.company}</span>
-                    </div>
-                  )}
-                  <div className="detail-row">
-                    <span className="label">Visiting (Employee):</span>
-                    <span className="value">{visitor.personToVisit || 'N/A'}</span>
-                  </div>
-                  <div className="detail-row">
-                    <span className="label">Purpose:</span>
-                    <span className="value">{visitor.purpose}</span>
-                  </div>
-                  {visitor.idNumber && (
-                    <div className="detail-row">
-                      <span className="label">ID:</span>
-                      <span className="value">{visitor.idType ? `${visitor.idType} - ` : ''}{visitor.idNumber}</span>
-                    </div>
-                  )}
-                  {visitor.recordedBy && (
-                    <div className="detail-row">
-                      <span className="label">Recorded by:</span>
-                      <span className="value">{visitor.recordedBy}</span>
-                    </div>
-                  )}
-                  <div className="detail-row">
-                    <span className="label">Check-in:</span>
-                    <span className="value">{formatDateTime(visitor.checkInDate)}</span>
-                  </div>
-                  <div className="detail-row">
-                    <span className="label">Day:</span>
-                    <span className="value">{getWeekdayName(getVisitorCheckInDate(visitor)) || 'N/A'}</span>
-                  </div>
-                  {visitor.checkOutDate && (
-                    <div className="detail-row">
-                      <span className="label">Check-out:</span>
-                      <span className="value">{formatDateTime(visitor.checkOutDate)}</span>
-                    </div>
-                  )}
-                  {visitor.checkoutReference && (
-                    <div className="detail-row">
-                      <span className="label">Checkout by:</span>
-                      <span className="value">{visitor.checkoutReference}</span>
-                    </div>
-                  )}
-
-                </div>
-              )}
-
               {(!visitor.checkOutDate || canDeleteVisitors) && (
                 <div className="visitor-actions" onClick={(event) => event.stopPropagation()}>
                   {!visitor.checkOutDate && (
@@ -344,6 +292,97 @@ export default function VisitorsPage({ adminDetailsPage = false }) {
               )}
             </div>
           ))}
+        </div>
+      )}
+
+      {canViewVisitorDetails && selectedVisitor && (
+        <div
+          className="visitor-details-backdrop"
+          onMouseDown={(event) => {
+            if (event.target === event.currentTarget) setSelectedVisitor(null);
+          }}
+        >
+          <section
+            className="visitor-details visitor-details-dialog"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="visitor-details-title"
+          >
+            <div className="visitor-details-heading">
+              <div>
+                <span className={`status-badge ${!selectedVisitor.checkOutDate ? 'in' : 'out'}`}>
+                  {!selectedVisitor.checkOutDate ? 'Check In' : 'Check Out'}
+                </span>
+                <h2 id="visitor-details-title">{selectedVisitor.fullName}</h2>
+              </div>
+              <button
+                type="button"
+                className="visitor-details-close"
+                onClick={() => setSelectedVisitor(null)}
+                aria-label="Close visitor details"
+              >
+                ×
+              </button>
+            </div>
+            <div className="visitor-details-content">
+              <div className="detail-row">
+                <span className="label">Phone:</span>
+                <span className="value">{selectedVisitor.phone}</span>
+              </div>
+              {selectedVisitor.email && (
+                <div className="detail-row">
+                  <span className="label">Email:</span>
+                  <span className="value">{selectedVisitor.email}</span>
+                </div>
+              )}
+              {selectedVisitor.company && (
+                <div className="detail-row">
+                  <span className="label">Company:</span>
+                  <span className="value">{selectedVisitor.company}</span>
+                </div>
+              )}
+              <div className="detail-row">
+                <span className="label">Visiting (Employee):</span>
+                <span className="value">{selectedVisitor.personToVisit || 'N/A'}</span>
+              </div>
+              <div className="detail-row">
+                <span className="label">Purpose:</span>
+                <span className="value">{selectedVisitor.purpose}</span>
+              </div>
+              {selectedVisitor.idNumber && (
+                <div className="detail-row">
+                  <span className="label">ID:</span>
+                  <span className="value">{selectedVisitor.idType ? `${selectedVisitor.idType} - ` : ''}{selectedVisitor.idNumber}</span>
+                </div>
+              )}
+              {selectedVisitor.recordedBy && (
+                <div className="detail-row">
+                  <span className="label">Recorded by:</span>
+                  <span className="value">{selectedVisitor.recordedBy}</span>
+                </div>
+              )}
+              <div className="detail-row">
+                <span className="label">Check-in:</span>
+                <span className="value">{formatDateTime(selectedVisitor.checkInDate)}</span>
+              </div>
+              <div className="detail-row">
+                <span className="label">Day:</span>
+                <span className="value">{getWeekdayName(getVisitorCheckInDate(selectedVisitor)) || 'N/A'}</span>
+              </div>
+              {selectedVisitor.checkOutDate && (
+                <div className="detail-row">
+                  <span className="label">Check-out:</span>
+                  <span className="value">{formatDateTime(selectedVisitor.checkOutDate)}</span>
+                </div>
+              )}
+              {selectedVisitor.checkoutReference && (
+                <div className="detail-row">
+                  <span className="label">Checkout by:</span>
+                  <span className="value">{selectedVisitor.checkoutReference}</span>
+                </div>
+              )}
+            </div>
+          </section>
         </div>
       )}
     </div>
