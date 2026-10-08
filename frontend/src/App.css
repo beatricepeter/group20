@@ -43,6 +43,28 @@ body {
   min-width: 0;
 }
 
+.app-shell-authenticated .dashboard-container,
+.app-shell-authenticated .visitors-container,
+.app-shell-authenticated .register-container,
+.app-shell-authenticated .appointments-page,
+.app-shell-authenticated .insights-page,
+.app-shell-authenticated .admin-dashboard-shell,
+.app-shell-authenticated .admin-main-panel {
+  background-color: #f3f4f6;
+  background-image: none;
+}
+
+.app-shell-authenticated .visitors-header h1,
+.app-shell-authenticated .appointments-header h1 {
+  color: #1f2937;
+}
+
+.app-shell-authenticated .visitors-controls .date-filter,
+.app-shell-authenticated .visitors-container .no-data-message,
+.app-shell-authenticated .appointments-header .appointments-eyebrow {
+  color: #475569;
+}
+
 button {
   font-family: inherit;
   cursor: pointer;

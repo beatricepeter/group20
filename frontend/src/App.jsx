@@ -20,9 +20,10 @@ import './App.css'
 
 function AppRoutes() {
   const { user } = useAuth()
+  const usesWhitePageBackground = ['receptionist', 'expert'].includes(user?.role)
 
   return (
-    <div className={`app-shell${user ? ' app-shell-authenticated' : ''}`}>
+    <div className={`app-shell${user ? ' app-shell-authenticated' : ''}${usesWhitePageBackground ? ' app-shell-user' : ''}`}>
       <Navbar />
       <main className="app-main-content">
         <Routes>
