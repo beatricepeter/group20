@@ -13,7 +13,7 @@ export default function VisitorsPage() {
   );
   const canRegisterVisitors = hasPermission('visitors.register');
   const canDeleteVisitors = hasPermission('visitors.delete');
-  const canViewVisitorDetails = user?.role === 'admin' || hasPermission('visitors.view');
+  const canViewVisitorDetails = user?.role === 'admin';
   const [visitors, setVisitors] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
