@@ -5,7 +5,7 @@ import { refreshVisitors, checkoutVisitor, deleteVisitor } from '../lib/db';
 import useIdleRefresh from '../hooks/useIdleRefresh';
 import '../styles/VisitorsPage.css';
 
-export default function VisitorsPage() {
+export default function VisitorsPage({ adminDetailsPage = false }) {
   const navigate = useNavigate();
   const { user } = useAuth();
   const hasPermission = (permission) => (
@@ -13,7 +13,9 @@ export default function VisitorsPage() {
   );
   const canRegisterVisitors = hasPermission('visitors.register');
   const canDeleteVisitors = hasPermission('visitors.delete');
-  const canViewVisitorDetails = user?.role === 'admin';
+  const canViewVisitorDetails = adminDetailsPage
+    && user?.role === 'admin'
+    && user?.permissions?.includes('visitors.view');
   const [visitors, setVisitors] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
@@ -138,7 +140,7 @@ export default function VisitorsPage() {
   return (
     <div className="visitors-container">
       <div className="visitors-header">
-        <h1> Visitors List</h1>
+        <h1>{adminDetailsPage ? 'View Visitors' : 'Visitors List'}</h1>
         {canRegisterVisitors && (
           <button
             className="btn-new"

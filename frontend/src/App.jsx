@@ -81,6 +81,19 @@ function AppContent() {
           />
 
           <Route
+            path="/admin/visitors"
+            element={
+              <ProtectedRoute
+                allowedRoles={['admin']}
+                requiredPermission="visitors.view"
+                enforcePermissionForAdmin
+              >
+                <VisitorsPage adminDetailsPage />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
             path="/visitors"
             element={
               <ProtectedRoute

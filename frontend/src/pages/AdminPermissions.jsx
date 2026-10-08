@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { refreshUsers, updateUser, refreshExperts, updateExpert } from '../lib/db';
+import { useAuth } from '../context/useAuth';
 import '../styles/DashboardPage.css';
 
 const PERMISSION_GROUPS = [
@@ -15,6 +16,7 @@ const PERMISSION_GROUPS = [
 ];
 
 export default function AdminPermissions() {
+  const { updateSessionUser } = useAuth();
   const [accounts, setAccounts] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState('');
@@ -91,7 +93,7 @@ export default function AdminPermissions() {
 
     try {
       if (account.kind === 'user') {
-        await updateUser(account.id, {
+        const updatedUser = await updateUser(account.id, {
           fullname: account.name,
           username: credentials.username || account.username,
           password: credentials.password,
@@ -99,6 +101,7 @@ export default function AdminPermissions() {
           canDeleteVisitors: account.permissions.includes('visitors.delete'),
           permissions: account.permissions,
         });
+        updateSessionUser(updatedUser);
       } else {
         await updateExpert(account.id, {
           fullname: account.name,

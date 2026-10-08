@@ -45,7 +45,7 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   useEffect(() => {
-    if (!user?.id || user.role === 'admin') return undefined;
+    if (!user?.id) return undefined;
 
     let active = true;
     const refreshAccount = async () => {
@@ -112,8 +112,23 @@ export const AuthProvider = ({ children }) => {
     setUser(null);
   };
 
+  const updateSessionUser = (account) => {
+    if (!user || user.id !== account.id) return;
+
+    const updatedUser = {
+      ...user,
+      username: account.username,
+      name: account.fullname,
+      role: account.role || user.role,
+      canDeleteVisitors: account.canDeleteVisitors,
+      permissions: account.permissions || [],
+    };
+    setSession(updatedUser);
+    setUser(updatedUser);
+  };
+
   return (
-    <AuthContext.Provider value={{ user, ready, login, logout, loading }}>
+    <AuthContext.Provider value={{ user, ready, login, logout, loading, updateSessionUser }}>
       {children}
     </AuthContext.Provider>
   );

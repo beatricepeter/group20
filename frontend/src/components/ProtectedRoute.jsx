@@ -1,7 +1,12 @@
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '../context/useAuth';
 
-export default function ProtectedRoute({ children, allowedRoles, requiredPermission }) {
+export default function ProtectedRoute({
+  children,
+  allowedRoles,
+  requiredPermission,
+  enforcePermissionForAdmin = false,
+}) {
   const { user, ready } = useAuth();
 
   // Wait until we've checked localStorage for a saved session,
@@ -20,17 +25,19 @@ export default function ProtectedRoute({ children, allowedRoles, requiredPermiss
     ? requiredPermission
     : requiredPermission ? [requiredPermission] : [];
 
-  if (requiredPermissions.length > 0 && user.role !== 'admin') {
+  if (requiredPermissions.length > 0 && (user.role !== 'admin' || enforcePermissionForAdmin)) {
     const hasRequiredPermission = requiredPermissions.some((permission) =>
       user.permissions?.includes(permission)
     );
 
     if (!hasRequiredPermission) {
-      const fallbackPath = user.permissions?.includes('visitors.view')
-        ? '/visitors'
-        : user.permissions?.includes('visitors.register')
-          ? '/register'
-          : '/';
+      const fallbackPath = user.role === 'admin'
+        ? '/admin-dashboard'
+        : user.permissions?.includes('visitors.view')
+          ? '/visitors'
+          : user.permissions?.includes('visitors.register')
+            ? '/register'
+            : '/';
       return <Navigate to={fallbackPath} replace />;
     }
   }

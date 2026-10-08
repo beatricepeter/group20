@@ -71,6 +71,14 @@ export default function Navbar() {
 
         {isAdmin && (
           <>
+            {user.permissions?.includes('visitors.view') && (
+              <button
+                className={`nav-link ${isActive('/admin/visitors')}`}
+                onClick={() => navigate('/admin/visitors')}
+              >
+                 View Visitors
+              </button>
+            )}
             <button
               className={`nav-link ${isActive('/admin/experts')}`}
               onClick={() => navigate('/admin/experts')}
