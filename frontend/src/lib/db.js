@@ -173,6 +173,19 @@ export async function deleteVisitor(id) {
   await apiRequest(`/visitors/${id}`, { method: 'DELETE' });
 }
 
+// ---- SYSTEM SETTINGS ----
+
+export async function getSystemSettings() {
+  return apiRequest('/settings');
+}
+
+export async function updateSystemSettings(settings) {
+  return apiRequest('/settings', {
+    method: 'PUT',
+    body: JSON.stringify(settings),
+  });
+}
+
 // ---- APPOINTMENTS ----
 
 export async function refreshAppointments() {

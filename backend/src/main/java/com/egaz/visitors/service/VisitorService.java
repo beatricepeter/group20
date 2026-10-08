@@ -21,17 +21,22 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @Transactional
 public class VisitorService {
-    private static final LocalTime AUTO_CHECKOUT_TIME = LocalTime.of(16, 30);
     private static final ZoneId ZANZIBAR_ZONE = ZoneId.of("Africa/Dar_es_Salaam");
     private static final String AUTO_CHECKOUT_REFERENCE = "System help you to checkout the visitor";
     private static final String DEFAULT_VISITOR_COMPANY = "E-Government of Zanzibar";
 
     private final VisitorRepository repository;
     private final ExpertRepository expertRepository;
+    private final SystemSettingsService settingsService;
 
-    public VisitorService(VisitorRepository repository, ExpertRepository expertRepository) {
+    public VisitorService(
+        VisitorRepository repository,
+        ExpertRepository expertRepository,
+        SystemSettingsService settingsService
+    ) {
         this.repository = repository;
         this.expertRepository = expertRepository;
+        this.settingsService = settingsService;
     }
 
     @Transactional(readOnly = true)
@@ -109,6 +114,7 @@ public class VisitorService {
     }
 
     void autoCheckoutExpiredVisitors(LocalDateTime now) {
+        LocalTime autoCheckoutTime = settingsService.getAutoCheckoutTime();
         List<Visitor> activeVisitors = repository.findByCheckOutDateIsNullOrderByCheckInDateDesc();
 
         for (Visitor visitor : activeVisitors) {
@@ -116,7 +122,7 @@ public class VisitorService {
             if (checkIn == null) {
                 continue;
             }
-            LocalDateTime cutoff = checkIn.toLocalDate().atTime(AUTO_CHECKOUT_TIME);
+            LocalDateTime cutoff = checkIn.toLocalDate().atTime(autoCheckoutTime);
             if (cutoff.isAfter(now)) {
                 continue;
             }

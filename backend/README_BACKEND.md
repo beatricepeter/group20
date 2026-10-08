@@ -3,10 +3,9 @@
 Spring Boot REST backend for `users`, `experts`, and `visitors`.
 
 ## Important
-- **No entity file/column was changed.**
-- Existing `User`, `Expert`, `Visitor`, and `Role` entities are preserved as provided.
-- `spring.jpa.hibernate.ddl-auto=validate` remains in use, so Hibernate will not create or alter database columns.
-- IDs are generated as UUID strings in the service layer.
+- Existing `User`, `Expert`, `Visitor`, and `Role` entities are preserved.
+- The `system_settings` table stores the admin-configured automatic checkout time; JPA updates the schema based on `spring.jpa.hibernate.ddl-auto=update`.
+- Visitor IDs are generated as UUID strings in the service layer.
 
 ## Layers
 - `repository/` — Spring Data JPA repositories
@@ -94,6 +93,17 @@ Checkout:
 {"checkOutDate":"2026-09-14T17:00:00"}
 ```
 Or send an empty JSON body to use the server's current time.
+
+### System settings
+- `GET /api/settings` — returns the daily automatic checkout time (default `16:30`)
+- `PUT /api/settings` — saves the daily automatic checkout time
+
+Body:
+```json
+{"autoCheckoutTime":"18:00"}
+```
+
+The scheduled job checks every minute using `Africa/Dar_es_Salaam` time and checks out visitors who remain active at or after the configured time.
 
 ## Run
 Make sure MySQL database `visitors_db` exists and the credentials in `src/main/resources/application.properties` match your environment.

@@ -104,6 +104,12 @@ export default function Navbar() {
                Reports
             </button>
             <button
+              className={`nav-link ${isActive('/admin/settings')}`}
+              onClick={() => navigate('/admin/settings')}
+            >
+               Settings
+            </button>
+            <button
               className={`nav-link ${isActive('/insights')}`}
               onClick={() => navigate('/insights')}
             >

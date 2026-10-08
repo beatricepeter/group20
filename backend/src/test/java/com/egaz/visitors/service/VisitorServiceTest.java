@@ -13,6 +13,7 @@ import com.egaz.visitors.entity.Visitor;
 import com.egaz.visitors.repository.ExpertRepository;
 import com.egaz.visitors.repository.VisitorRepository;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
@@ -30,11 +31,14 @@ class VisitorServiceTest {
     @Mock
     private ExpertRepository expertRepository;
 
+    @Mock
+    private SystemSettingsService settingsService;
+
     private VisitorService visitorService;
 
     @BeforeEach
     void setUp() {
-        visitorService = new VisitorService(visitorRepository, expertRepository);
+        visitorService = new VisitorService(visitorRepository, expertRepository, settingsService);
     }
 
     @Test
@@ -164,6 +168,7 @@ class VisitorServiceTest {
 
         when(visitorRepository.findByCheckOutDateIsNullOrderByCheckInDateDesc())
             .thenReturn(List.of(morningVisitor, afternoonVisitor));
+        when(settingsService.getAutoCheckoutTime()).thenReturn(LocalTime.of(16, 30));
         when(visitorRepository.save(any(Visitor.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         visitorService.autoCheckoutExpiredVisitors(now);
@@ -184,9 +189,28 @@ class VisitorServiceTest {
 
         when(visitorRepository.findByCheckOutDateIsNullOrderByCheckInDateDesc())
             .thenReturn(List.of(activeVisitor));
+        when(settingsService.getAutoCheckoutTime()).thenReturn(LocalTime.of(16, 30));
 
         visitorService.autoCheckoutExpiredVisitors(now);
 
         assertNull(activeVisitor.getCheckOutDate());
+    }
+
+    @Test
+    void autoCheckoutUsesTheConfiguredDailyTime() {
+        LocalDateTime now = LocalDateTime.of(2026, 9, 25, 18, 15);
+        Visitor activeVisitor = new Visitor();
+        activeVisitor.setId("configured-time");
+        activeVisitor.setCheckInDate(LocalDateTime.of(2026, 9, 25, 8, 0));
+
+        when(visitorRepository.findByCheckOutDateIsNullOrderByCheckInDateDesc())
+            .thenReturn(List.of(activeVisitor));
+        when(settingsService.getAutoCheckoutTime()).thenReturn(LocalTime.of(18, 15));
+        when(visitorRepository.save(any(Visitor.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        visitorService.autoCheckoutExpiredVisitors(now);
+
+        assertEquals(now, activeVisitor.getCheckOutDate());
+        assertEquals("System help you to checkout the visitor", activeVisitor.getCheckoutReference());
     }
 }

@@ -9,6 +9,7 @@ import AdminExperts from './pages/AdminExperts'
 import AdminUsers from './pages/AdminUsers'
 import AdminPermissions from './pages/AdminPermissions'
 import AdminReports from './pages/AdminReports'
+import AdminSettings from './pages/AdminSettings'
 import VisitorsPage from './pages/VisitorsPage'
 import RegisterVisitorPage from './pages/RegisterVisitorPage'
 import AppointmentsPage from './pages/AppointmentsPage'
@@ -76,6 +77,15 @@ function AppContent() {
             element={
               <ProtectedRoute allowedRoles={['admin']}>
                 <AdminReports />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/admin/settings"
+            element={
+              <ProtectedRoute allowedRoles={['admin']}>
+                <AdminSettings />
               </ProtectedRoute>
             }
           />
