@@ -14,6 +14,12 @@ public class DataInitializer {
     @Bean
     CommandLineRunner seedUsers(UserRepository repository) {
         return args -> {
+            repository.findByUsername("admin").ifPresent(admin -> {
+                if (!admin.isEnabled()) {
+                    admin.setEnabled(true);
+                    repository.save(admin);
+                }
+            });
             if (repository.count() > 0) return;
 
             repository.save(createUser("Admin", "admin", "admin", Role.admin));

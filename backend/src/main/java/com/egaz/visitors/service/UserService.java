@@ -17,6 +17,8 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @Transactional
 public class UserService {
+    private static final String DEFAULT_ADMIN_USERNAME = "admin";
+
     private final UserRepository repository;
     private final ExpertRepository expertRepository;
 
@@ -56,6 +58,10 @@ public class UserService {
     public UserResponse update(String id, UserRequest request) {
         validate(request, false);
         User user = get(id);
+        if (DEFAULT_ADMIN_USERNAME.equalsIgnoreCase(user.getUsername())
+            && Boolean.FALSE.equals(request.enabled())) {
+            throw new IllegalArgumentException("The default admin account must remain active");
+        }
         String username = request.username().trim();
         if (!username.equals(user.getUsername()) && (repository.existsByUsername(username)
             || expertRepository.existsByUsername(username))) {
@@ -85,6 +91,7 @@ public class UserService {
         if (!blank(r.password())) u.setPassword(r.password());
         if (r.role() != null) u.setRole(r.role());
         else if (creating) u.setRole(Role.receptionist);
+        if (r.enabled() != null) u.setEnabled(r.enabled());
         if (r.permissions() != null) {
             u.setPermissions(new HashSet<>(r.permissions()));
             u.setCanDeleteVisitors(u.getPermissions().contains("visitors.delete"));
@@ -100,6 +107,6 @@ public class UserService {
 
     private UserResponse toResponse(User u) {
         return new UserResponse(u.getId(), u.getFullname(), u.getUsername(), u.getRole(), u.getCreatedAt(),
-            u.isCanDeleteVisitors(), u.getPermissions().stream().sorted().toList());
+            u.isCanDeleteVisitors(), u.getPermissions().stream().sorted().toList(), u.isEnabled());
     }
 }

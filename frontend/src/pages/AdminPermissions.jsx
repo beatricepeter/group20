@@ -20,7 +20,6 @@ export default function AdminPermissions() {
   const [accounts, setAccounts] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState('');
-  const [accountType, setAccountType] = useState('all');
   const [selectedAccountId, setSelectedAccountId] = useState(null);
   const [credentialDraft, setCredentialDraft] = useState({ username: '', password: '' });
   const [error, setError] = useState('');
@@ -56,18 +55,8 @@ export default function AdminPermissions() {
 
   const filteredAccounts = useMemo(() => {
     const search = searchTerm.trim().toLowerCase();
-    return accounts.filter((account) => {
-      const matchesType = accountType === 'all'
-        || (accountType === 'user' && account.kind === 'user')
-        || (accountType === 'expert' && account.kind === 'expert');
-      const searchableText = account.name.toLowerCase();
-      return matchesType && (!search || searchableText.includes(search));
-    });
-  }, [accounts, accountType, searchTerm]);
-
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [accountType, searchTerm]);
+    return accounts.filter((account) => account.name.toLowerCase().includes(search));
+  }, [accounts, searchTerm]);
 
   const totalPages = Math.max(1, Math.ceil(filteredAccounts.length / PAGE_SIZE));
   const currentPageSafe = Math.min(currentPage, totalPages);
@@ -144,21 +133,13 @@ export default function AdminPermissions() {
               <input
                 type="search"
                 value={searchTerm}
-                onChange={(event) => setSearchTerm(event.target.value)}
+                onChange={(event) => {
+                  setSearchTerm(event.target.value);
+                  setCurrentPage(1);
+                }}
                 placeholder="Search by name"
                 aria-label="Search admin or employee name"
               />
-            </label>
-            <label className="permission-filter">
-              Account type
-              <select
-                value={accountType}
-                onChange={(event) => setAccountType(event.target.value)}
-              >
-                <option value="all">All accounts</option>
-                <option value="user">Users</option>
-                <option value="expert">Employees</option>
-              </select>
             </label>
           </div>
 
@@ -232,10 +213,6 @@ export default function AdminPermissions() {
               <div className="permission-drawer-row">
                 <span>Username</span>
                 <strong>{selectedAccount.username || 'Not set'}</strong>
-              </div>
-              <div className="permission-drawer-row">
-                <span>Role</span>
-                <strong>{selectedAccount.role || 'Not set'}</strong>
               </div>
               {selectedAccount.kind === 'expert' && (
                 <div className="permission-drawer-row">

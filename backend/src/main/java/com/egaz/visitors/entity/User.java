@@ -47,6 +47,9 @@ public class User {
     @Column(name = "can_delete_visitors", nullable = false)
     private boolean canDeleteVisitors = false;
 
+    @Column(name = "enabled", nullable = false, columnDefinition = "boolean not null default true")
+    private boolean enabled = true;
+
     @ElementCollection
     @CollectionTable(name = "user_permissions", joinColumns = @JoinColumn(name = "user_id"))
     @Column(name = "permission", nullable = false, length = 100)

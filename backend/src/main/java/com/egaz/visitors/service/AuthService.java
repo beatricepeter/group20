@@ -28,10 +28,13 @@ public class  AuthService {
         }
         String username = request.username().trim();
         User user = userRepository.findByUsername(username).orElse(null);
-        if (user != null && request.password().equals(user.getPassword())) {
+        if (user != null) {
+            if (!user.isEnabled() || !request.password().equals(user.getPassword())) {
+                throw new ResourceNotFoundException("Invalid username or password");
+            }
             return new LoginResponse(user.getId(), user.getFullname(), user.getUsername(),
-                    user.getRole().name(), user.isCanDeleteVisitors(),
-                    user.getPermissions().stream().sorted().toList());
+                user.getRole().name(), user.isCanDeleteVisitors(),
+                user.getPermissions().stream().sorted().toList());
         }
 
         Expert expert = expertRepository.findByUsername(username)

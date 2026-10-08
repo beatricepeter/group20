@@ -1,5 +1,6 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider } from './context/AuthContext'
+import { useAuth } from './context/useAuth'
 import Navbar from './components/Navbar'
 import ProtectedRoute from './components/ProtectedRoute'
 import LoginPage from './pages/LoginPage'
@@ -17,10 +18,13 @@ import VisitorInsightsPage from './pages/VisitorInsightsPage'
 import Home from './pages/Home'
 import './App.css'
 
-function AppContent() {
+function AppRoutes() {
+  const { user } = useAuth()
+
   return (
-    <AuthProvider>
+    <div className={`app-shell${user ? ' app-shell-authenticated' : ''}`}>
       <Navbar />
+      <main className="app-main-content">
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<LoginPage />} />
@@ -150,6 +154,15 @@ function AppContent() {
 
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
+      </main>
+    </div>
+  )
+}
+
+function AppContent() {
+  return (
+    <AuthProvider>
+      <AppRoutes />
     </AuthProvider>
   )
 }

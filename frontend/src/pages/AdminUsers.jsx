@@ -116,6 +116,50 @@ export default function AdminUsers() {
     }
   }
 
+  async function handleAccessChange(target) {
+    setError('');
+    setSuccess('');
+
+    if (target.id === session.id) {
+      setError('Unable to revoke your own access.');
+      return;
+    }
+
+    const enabled = target.enabled === false;
+    if (!enabled && target.username.toLowerCase() === 'admin') {
+      setError('The default admin account must remain active.');
+      return;
+    }
+    if (!enabled && target.role === 'admin') {
+      const activeAdmins = users.filter((account) => account.role === 'admin' && account.enabled !== false);
+      if (activeAdmins.length <= 1) {
+        setError('Unable to revoke access from the last active admin.');
+        return;
+      }
+    }
+
+    const action = enabled ? 'restore access to' : 'revoke access from';
+    if (!confirm(`Are you sure you want to ${action} ${target.fullname}?`)) return;
+
+    try {
+      const updated = await updateUser(target.id, {
+        fullname: target.fullname,
+        username: target.username,
+        password: '',
+        role: target.role,
+        canDeleteVisitors: target.canDeleteVisitors,
+        permissions: target.permissions,
+        enabled,
+      });
+      setUsers((current) => current.map((account) => (account.id === target.id ? updated : account)));
+      setSuccess(enabled
+        ? `Access restored for ${target.fullname}.`
+        : `Access revoked for ${target.fullname}.`);
+    } catch (err) {
+      setError(err.message || `Unable to ${action} ${target.fullname}.`);
+    }
+  }
+
   async function handleDelete(target) {
     setError('');
     setSuccess('');
@@ -233,6 +277,7 @@ export default function AdminUsers() {
                   <th>Full Name</th>
                   <th>Username</th>
                   <th>Role</th>
+                  <th>Access</th>
                   <th>Joined</th>
                   <th>Actions</th>
                 </tr>
@@ -240,6 +285,7 @@ export default function AdminUsers() {
               <tbody>
                 {users.map((u, i) => {
                   const isSelf = u.id === session.id;
+                  const isDefaultAdmin = u.username.toLowerCase() === 'admin';
                   return (
                     <tr key={u.id}>
                       <td>{i + 1}</td>
@@ -255,11 +301,24 @@ export default function AdminUsers() {
                           <option value="admin">Admin</option>
                         </select>
                       </td>
+                      <td>
+                        <span className={`status-pill ${u.enabled === false ? 'checked-out' : 'active'}`}>
+                          {u.enabled === false ? 'Revoked' : 'Active'}
+                        </span>
+                      </td>
                       <td>{u.created_at || u.createdAt ? new Date(u.created_at || u.createdAt).toLocaleDateString() : '-'}</td>
                       <td>
                         <div style={{ display: 'flex', gap: '0.5rem' }}>
                           <button className="mini-action-button" onClick={() => handleEdit(u)}>
                              Edit
+                          </button>
+                          <button
+                            className={`mini-action-button${u.enabled === false ? '' : ' danger'}`}
+                            disabled={isSelf || (isDefaultAdmin && u.enabled !== false)}
+                            onClick={() => handleAccessChange(u)}
+                            title={isDefaultAdmin ? 'The default admin account must remain active' : undefined}
+                          >
+                            {u.enabled === false ? 'Restore' : 'Revoke'}
                           </button>
                           <button
                             className="mini-action-button danger"

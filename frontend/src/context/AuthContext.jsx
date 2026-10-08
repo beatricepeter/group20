@@ -54,6 +54,11 @@ export const AuthProvider = ({ children }) => {
           ? await refreshExpert(user.id)
           : await refreshUser(user.id);
         if (!active) return;
+        if (account.enabled === false) {
+          setSession(null);
+          setUser(null);
+          return;
+        }
 
         const refreshedUser = {
           ...user,
@@ -62,6 +67,7 @@ export const AuthProvider = ({ children }) => {
           role: account.role || user.role,
           canDeleteVisitors: account.canDeleteVisitors,
           permissions: account.permissions || [],
+          enabled: account.enabled !== false,
         };
         if (JSON.stringify(refreshedUser) !== JSON.stringify(user)) {
           setSession(refreshedUser);
@@ -94,6 +100,7 @@ export const AuthProvider = ({ children }) => {
         role: apiRes.role,
         canDeleteVisitors: apiRes.canDeleteVisitors,
         permissions: apiRes.permissions || [],
+        enabled: apiRes.enabled !== false,
       };
       localStorage.removeItem(KEYS.TOKEN);
       setSession(authenticatedUser);
@@ -122,6 +129,7 @@ export const AuthProvider = ({ children }) => {
       role: account.role || user.role,
       canDeleteVisitors: account.canDeleteVisitors,
       permissions: account.permissions || [],
+      enabled: account.enabled !== false,
     };
     setSession(updatedUser);
     setUser(updatedUser);
