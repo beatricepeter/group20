@@ -105,6 +105,16 @@ Body:
 
 The scheduled job checks every minute using `Africa/Dar_es_Salaam` time and checks out visitors who remain active at or after the configured time.
 
+### Departments
+- `GET /api/departments` — lists organisation departments
+- `POST /api/departments` — adds a department
+- `DELETE /api/departments/{id}` — removes a department from the list
+
+Create body:
+```json
+{"name":"Human Resources"}
+```
+
 ## Run
 Make sure MySQL database `visitors_db` exists and the credentials in `src/main/resources/application.properties` match your environment.
 

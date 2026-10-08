@@ -1,5 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
-import { refreshExperts, createExpert, updateExpert, deleteExpert, refreshVisitors } from '../lib/db';
+import {
+  refreshExperts,
+  createExpert,
+  updateExpert,
+  deleteExpert,
+  refreshVisitors,
+  refreshDepartments,
+} from '../lib/db';
 import '../styles/DashboardPage.css';
 
 const emptyForm = { id: null, firstName: '', lastName: '', department: '' };
@@ -34,6 +41,7 @@ async function downloadWorkbook(rows, filename) {
 export default function AdminExperts() {
   const [experts, setExperts] = useState([]);
   const [visitors, setVisitors] = useState([]);
+  const [departments, setDepartments] = useState([]);
   const [form, setForm] = useState(emptyForm);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
@@ -42,9 +50,10 @@ export default function AdminExperts() {
   const editing = !!form.id;
 
   useEffect(() => {
-    Promise.all([refreshExperts(), refreshVisitors()]).then(([loadedExperts, loadedVisitors]) => {
+    Promise.all([refreshExperts(), refreshVisitors(), refreshDepartments()]).then(([loadedExperts, loadedVisitors, loadedDepartments]) => {
       setExperts(loadedExperts);
       setVisitors(loadedVisitors);
+      setDepartments(loadedDepartments);
     });
   }, []);
 
@@ -248,12 +257,18 @@ export default function AdminExperts() {
             </div>
             <div className="form-group">
               <label>Department</label>
-              <input
-                type="text"
+              <select
                 value={form.department}
                 onChange={(e) => setForm((f) => ({ ...f, department: e.target.value }))}
-                placeholder="Enter employee department"
-              />
+              >
+                <option value="">Select department</option>
+                {form.department && !departments.some((department) => department.name === form.department) && (
+                  <option value={form.department}>{form.department} (current)</option>
+                )}
+                {departments.map((department) => (
+                  <option key={department.id} value={department.name}>{department.name}</option>
+                ))}
+              </select>
             </div>
             <div className="dashboard-actions">
               <button type="submit" className="action-btn primary">

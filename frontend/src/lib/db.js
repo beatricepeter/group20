@@ -186,6 +186,24 @@ export async function updateSystemSettings(settings) {
   });
 }
 
+// ---- DEPARTMENTS ----
+
+export async function refreshDepartments() {
+  const departments = await apiRequest('/departments');
+  return Array.isArray(departments) ? departments : [];
+}
+
+export async function createDepartment(name) {
+  return apiRequest('/departments', {
+    method: 'POST',
+    body: JSON.stringify({ name }),
+  });
+}
+
+export async function deleteDepartment(id) {
+  await apiRequest(`/departments/${encodeURIComponent(id)}`, { method: 'DELETE' });
+}
+
 // ---- APPOINTMENTS ----
 
 export async function refreshAppointments() {
