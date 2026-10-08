@@ -154,21 +154,36 @@ export default function AdminExperts() {
       const worksheet = workbook.worksheets[0];
       if (!worksheet) throw new Error('The selected file does not contain a worksheet.');
 
-      const headers = worksheet.getRow(1).values.slice(1).map((value) => String(value || '').trim().toLowerCase());
+      const headers = worksheet.getRow(1).values.slice(1).map((value) => (
+        String(value || '').trim().toLowerCase().replace(/[_-]+/g, ' ').replace(/\s+/g, ' ')
+      ));
       const fullnameColumn = headers.findIndex((header) => ['full name', 'fullname', 'name'].includes(header)) + 1;
+      const firstNameColumn = headers.findIndex((header) => ['first name', 'firstname'].includes(header)) + 1;
+      const lastNameColumn = headers.findIndex((header) => ['last name', 'lastname'].includes(header)) + 1;
       const departmentColumn = headers.indexOf('department') + 1;
-      if (!fullnameColumn) throw new Error('The selected sheet must have a "Full Name" column.');
+      const hasSeparateNameColumns = firstNameColumn > 0 && lastNameColumn > 0;
+      if (!fullnameColumn && !hasSeparateNameColumns) {
+        throw new Error('The selected sheet must have either a "Full Name" column or both "First Name" and "Last Name" columns.');
+      }
 
       const imported = [];
       const rowErrors = [];
 
       for (let rowNumber = 2; rowNumber <= worksheet.rowCount; rowNumber += 1) {
         const row = worksheet.getRow(rowNumber);
-        const fullname = String(row.getCell(fullnameColumn).text || '').trim();
+        const firstName = firstNameColumn ? String(row.getCell(firstNameColumn).text || '').trim() : '';
+        const lastName = lastNameColumn ? String(row.getCell(lastNameColumn).text || '').trim() : '';
+        const separateName = `${firstName} ${lastName}`.trim();
+        const hasSeparateNameValues = Boolean(firstName || lastName);
+        const fullname = hasSeparateNameColumns && firstName && lastName
+          ? separateName
+          : !hasSeparateNameValues && fullnameColumn
+            ? String(row.getCell(fullnameColumn).text || '').trim()
+            : '';
         const department = departmentColumn ? String(row.getCell(departmentColumn).text || '').trim() : '';
 
         if (!fullname && !department) continue;
-        if (!fullname) {
+        if (!fullname || (hasSeparateNameValues && (!firstName || !lastName))) {
           rowErrors.push(rowNumber);
           continue;
         }
@@ -187,7 +202,7 @@ export default function AdminExperts() {
       } else if (imported.length > 0) {
         setSuccess(`Imported ${imported.length} employee(s) successfully.`);
       } else {
-        setError('No employees were imported. Check that the sheet has a "Full Name" column and names are filled in.');
+        setError('No employees were imported. Check that the sheet has a "Full Name" column or both "First Name" and "Last Name" columns, with names filled in.');
       }
     } catch (err) {
       setError(err.message || 'Unable to read the selected spreadsheet.');
